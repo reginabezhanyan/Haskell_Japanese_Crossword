@@ -1,0 +1,40 @@
+--удаление восстановленной сессии
+deleteBoard :: DataBaseBoard -> Int -> DataBaseBoard --Int -  номер восстановленной сессии
+deleteBoard [] _ = []
+deleteBoard (f:fs) x | (numberfield f) == x = fs
+                     | otherwise = f : deleteBoard fs x
+                     
+--если ничего не нашли, то загружаем игру по новой из файла                   
+--поиск нужной сессии 
+searchBoard :: DataBaseBoard -> Int -> Maybe Field --Int -  номер восстановленной сессии
+searchBoard [] _ = Nothing
+searchBoard (f:fs) x | (numberfield f) == x = Just f
+                     | otherwise = searchBoard fs x
+ 
+--создание нового рекорда 
+createNewRecord :: Field -> Record
+createNewRecord f = Record
+    { username = ""
+    , timerecord = timer f
+    , numberboard = numberfield f
+    }
+                    
+--сохранение нового рекорда в таблицу рекордов (сразу сортируются по времени)
+saveRecord :: DataBaseRecord -> Record -> DataBaseRecord
+saveRecord [] new_rec = [new_rec]
+saveRecord (r:rs) new_rec | (timerecord r) < (timerecord new_rec) = r : saveRecord rs new_rec
+                          | otherwise = new_rec : r : rs
+
+--main
+main ::  IO()
+main = do
+   filecontent <- readFile "field.txt"  
+   --let base = saveBoard [] (readField (lines filecontent))
+   let board = readField (lines filecontent)
+   print "Horizontal lines:"
+   print (horline board)
+   print "Vertical lines:"
+   print (verline board)
+   print (checkWin (changeField (changeField (changeField (changeField (changeField (changeField (changeField (changeField board 0 1) 0 2) 1 0) 1 2) 2 0) 2 1) 2 2) 0 0))
+
+     
